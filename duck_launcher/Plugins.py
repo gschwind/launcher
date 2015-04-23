@@ -25,7 +25,7 @@ import webbrowser
 import subprocess
 import codecs
 import urllib2
-import notify2
+import notify as notify2
 try:
 	import simplejson as json
 except:

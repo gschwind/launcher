@@ -24,7 +24,7 @@ import wnck
 #from gi.repository import Wnck as wnck
 import time
 import os
-import Image
+from PIL import Image
 import binascii
 #
 import Apps

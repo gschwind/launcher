@@ -2,7 +2,7 @@ import sys
 sys.dont_write_bytecode=True
 from jinja2 import Template
 import os
-import notify2
+import notify as notify2
 import webbrowser 
 #Search event
 def Search(query, color=None,font=None):

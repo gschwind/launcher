@@ -3,7 +3,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import *
 import os
 import webbrowser
-import notify2 
+import notify as notify2
 import subprocess
 import Files
 import Plugins
