@@ -21,38 +21,39 @@ import Config
 import os
 from PyQt4.QtGui import QIcon
 import glob
-from xdg import DesktopEntry as _d
-from xdg import IconTheme
+from xdg.DesktopEntry import DesktopEntry
+from xdg.IconTheme import IconTheme
 import gtk
 APPS=None
 def info(filter_):
 	global APPS
 	appList=[]
 	a=False
-	all_apps=glob.glob("/usr/share/applications/*.desktop")
-	for a in glob.glob("/usr/share/applications/kde4/*.desktop"):
+	all_apps=glob.glob(u"/usr/share/applications/*.desktop")
+	for a in glob.glob(u"/usr/share/applications/kde4/*.desktop"):
 	      all_apps.append(a)
-	for a in glob.glob("{}/.local/share/applications/*.desktop".format(os.path.expanduser("~"))):
+	for a in glob.glob(u"{}/.local/share/applications/*.desktop".format(os.path.expanduser("~"))):
 	      all_apps.append(a)
 	for f in all_apps:
+                de = DesktopEntry(f)
 		try:
-			if filter_ !="" and filter_.lower() in str(_d.DesktopEntry(unicode(f)).getName()).lower():
+			if filter_ !="" and filter_.lower() in str(de.getName()).lower():
 				show=True
 			elif filter_=='':
 				show=True
 			else:show=False
-			showTerminal= _d.DesktopEntry(unicode(f)).getTerminal()
-			dNotShowIn= _d.DesktopEntry(unicode(f)).getNotShowIn()
-			dNoDisplay = _d.DesktopEntry(unicode(f)).getNoDisplay()
-			dHidden = _d.DesktopEntry(unicode(f)).getHidden()
-			dType = _d.DesktopEntry(unicode(f)).getType()
-			if dNoDisplay==False and dHidden==False and dType=="Application" and show==True and os.environ.get("XDG_CURRENT_DESKTOP") not in dNotShowIn:  
+			showTerminal= de.getTerminal()
+			dNotShowIn= de.getNotShowIn()
+			dNoDisplay = de.getNoDisplay()
+			dHidden = de.getHidden()
+			dType = de.getType()
+			if dNoDisplay==False and dHidden==False and dType==u"Application" and show==True and os.environ.get("XDG_CURRENT_DESKTOP") not in dNotShowIn:  
 				app={}
-				OnlyShowIn =  _d.DesktopEntry(unicode(f)).getOnlyShowIn()
+				OnlyShowIn =  de.getOnlyShowIn()
 				current_desk=os.environ.get('XDG_CURRENT_DESKTOP')
 				if len(OnlyShowIn)==0 or current_desk in OnlyShowIn:
-					app["name"]=str(_d.DesktopEntry(unicode(f)).getName())
-					e = str(_d.DesktopEntry(unicode(f)).getExec())
+					app["name"]=de.getName()
+					e = de.getExec()
 
 					#prevent '"' in exec
 					if e[0] == '"' and e[-1] == '"':
@@ -63,16 +64,19 @@ def info(filter_):
 					except ValueError:
 						pass
 					if showTerminal==True:
-						app["exec"]="xterm -e {}".format(e)
+						app["exec"]=u"xterm -e {}".format(e)
 					else:
 						app["exec"]=e
-					app["icon"]=str(_d.DesktopEntry(unicode(f)).getIcon())
-					app["icon_path"]=ico_from_name(str(_d.DesktopEntry(unicode(f)).getIcon()))
+					app["icon"]=de.getIcon()
+					app["icon_path"]=ico_from_name(de.getIcon())
 					appList.append(app)
 		except:
 			pass
 	return sorted(appList,key=lambda x:x["name"])
 	APPS=sorted(appList,key=lambda x:x["name"])
+
+
+
 def ico_from_name(name,size="small"):
 	icon_theme = gtk.icon_theme_get_default()
 	icon_=icon_theme.lookup_icon(name, 48, 0)

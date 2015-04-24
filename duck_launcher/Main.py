@@ -838,6 +838,7 @@ class Fakewin(QtGui.QMainWindow):
 		if e.key()==QtCore.Qt.Key_Backspace:
 			self.parent.current_text=self.parent.current_text[:-1]
 			if self.plugin==False:
+                                print(type(self.parent.current_text),self.parent.current_text)
 				self.parent.allApps=Apps.info(str(self.parent.current_text))
 			self.parent.update()
 		elif e.key()==QtCore.Qt.Key_Return:

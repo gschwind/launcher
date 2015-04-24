@@ -136,19 +136,23 @@ def check_dict(d):
 	'''
 	create_from_info(new_d)
 	return d
+
 def create_from_info(dict):
 	HOME = os.path.expanduser("~")
-	dir =os.environ.get('XDG_CONFIG_HOME',os.path.join(HOME,'.config'))
+	dir = os.environ.get('XDG_CONFIG_HOME',os.path.join(HOME,'.config'))
 	cfg= dir+'/duck-launcher.config'
 	the_file=open(cfg,"wb")
 	pickle.dump(dict,the_file)
 	the_file.close()
+
 def get():
 	HOME = os.path.expanduser("~")
 	dir =os.environ.get('XDG_CONFIG_HOME',os.path.join(HOME,'.config'))
 	cfg= dir+'/duck-launcher.config'
-	if "duck-launcher.config" not in os.listdir(dir):
+	if not os.path.isfile(cfg):
 		create_from_info(defaultDict)
+	if not os.path.isfile(cfg):
+		raise u"Cannot create configuration file {}".format(cfg)
 	the_file=open(cfg,"rb")
 	try:
 		theDict=pickle.load(the_file)

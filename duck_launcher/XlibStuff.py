@@ -33,6 +33,7 @@ def fix_window(winId,left,right,top,bottom):
                     self.sleep(1)
             except:
                 raise
+
 class reserveSpace():
 	def __init__(self, winId):
 		self._display = D.Display()
