@@ -190,7 +190,7 @@ class pluginView(QWebView):
 			self.theFrame.evaluateJavaScript("setNewFiles({})".format(stuff))
 	@pyqtSlot(str)
 	def _pluginInstallPlugin(self,plugin):
-		notify2.init("duck-launcher")
+		notify2.init("duck-launcher",'qt')
 		n=notify2.Notification("The plugin '{}' is installing".format(plugin),
 			"",
 			"dialog-information")
@@ -202,7 +202,7 @@ class pluginView(QWebView):
 		self.parent.close_it()
 	@pyqtSlot(str)
 	def _pluginRemovePlugin(self,plugin):
-		notify2.init("duck-launcher")
+		notify2.init("duck-launcher",'qt')
 		n=notify2.Notification("The plugin '{}' is uninstalling".format(plugin),
 			"",
 			"dialog-information")

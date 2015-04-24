@@ -117,23 +117,7 @@ def updateConfig(*args):
 				new_blocks.append(b)
 			new_blocks_pickle = pickle.dumps(new_blocks)
 			iface.setBlocks(new_blocks_pickle)
-			Dict={
-				"r":iface.getR1(),
-				"g":iface.getG1(),
-				"b":iface.getB1(),
-				"r2":iface.getR2(),
-				"g2":iface.getG2(),
-				"b2":iface.getB2(),
-				"alpha":iface.getAlpha(),
-				"font":iface.getFont(),
-				"animation-speed":iface.getAnimationSpeed(),
-				"size":iface.getLauncherWidth(),
-				"dock-apps":iface.getDockApps(),
-				"icon-size":iface.getIconSize(),
-				"blocks":iface.getBlocks(),
-				"init-manager":iface.getInit()
-				}
-			d_cfg.check_dict(Dict)
+                        #iface.saveConfiguration()
 def createBlockDicts(tl):
 	#print [a for a in tl]
 	list_=list(tl)
@@ -621,31 +605,19 @@ class Window(App):
 		updateConfig({"font":font})
 	def on_stop(self):
 		print "[Duck Settings] Quiting and saving configuration"
-		#update config file
-		dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-		# Get the session bus
-		bus = dbus.SessionBus()
-		# Get the remote object
-		remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")
-		# Get the remote interface for the remote object
-		iface = dbus.Interface(remote_object, "org.duck.Launcher")
-		Dict={
-			"r":iface.getR1(),
-			"g":iface.getG1(),
-			"b":iface.getB1(),
-			"r2":iface.getR2(),
-			"g2":iface.getG2(),
-			"b2":iface.getB2(),
-			"alpha":iface.getAlpha(),
-			"font":iface.getFont(),
-			"animation-speed":iface.getAnimationSpeed(),
-			"size":iface.getLauncherWidth(),
-			"dock-apps":iface.getDockApps(),
-			"icon-size":iface.getIconSize(),
-			"blocks":iface.getBlocks(),
-			"init-manager":iface.getInit()
-			}
-		d_cfg.check_dict(Dict)
+                if True:
+		    #update config file
+		    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+		    # Get the session bus
+		    bus = dbus.SessionBus()
+		    # Get the remote object
+		    remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")
+		    # Get the remote interface for the remote object
+		    iface = dbus.Interface(remote_object, "org.duck.Launcher")
+                    # saving configuration
+                    iface.saveConfiguration()
+                #except:
+                #    print(u"[Duck Settings] Fail to get the laucher dbus interface")
 if __name__=="__main__":
 	Config.set('graphics','width','725')
 	Config.set('graphics','height','600')

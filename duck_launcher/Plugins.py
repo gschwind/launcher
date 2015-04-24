@@ -121,7 +121,7 @@ def getCurrentPluginModule(name):
 class Repo():
 	def __init__(self):
 		self.plugins=[]
-		notify2.init("duck launcher")
+		notify2.init("duck launcher", 'qt')
 	def getPlugins(self):
 		try:
 			r_file = urllib2.urlopen("https://api.github.com/repos/the-duck/launcher-plugins/contents")

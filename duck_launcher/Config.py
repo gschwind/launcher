@@ -29,8 +29,8 @@ except:
 	import pickle
 CONFIG={}
 defaultDict=defaultConfig.Dict
-def check_dict(d):
-	new_d={}
+def validate_configuration(d):
+	new_d = dict()
 	if d.has_key("r"):
 		new_d["r"]=int(d["r"])
 	else:
@@ -134,16 +134,16 @@ def check_dict(d):
 		d["init-manager"]=defaultDict["init-manager"]
 	#
 	'''
-	create_from_info(new_d)
-	return d
+	return new_d
 
-def create_from_info(dict):
+def save_configuration(conf_data):
 	HOME = os.path.expanduser("~")
-	dir = os.environ.get('XDG_CONFIG_HOME',os.path.join(HOME,'.config'))
-	cfg= dir+'/duck-launcher.config'
-	the_file=open(cfg,"wb")
-	pickle.dump(dict,the_file)
-	the_file.close()
+	d = os.environ.get('XDG_CONFIG_HOME',os.path.join(HOME,'.config'))
+	cfg= d+'/duck-launcher.config'
+        print(u"Saving config into '{}'".format(cfg), conf_data)
+	cfg_file=open(cfg,"wb")
+	pickle.dump(conf_data,cfg_file)
+	cfg_file.close()
 
 def get():
 	HOME = os.path.expanduser("~")
@@ -164,7 +164,8 @@ def get():
 		else:
 			theDict=defaultDict
 	the_file.close()
-	return check_dict(theDict)
+	return validate_configuration(theDict)
+
 def get_from_block(block):
 	all=[]
 	if block.has_key("apps"):
@@ -186,10 +187,12 @@ def get_from_block(block):
 			data['type']='file'
 			all.append(data)
 	return all
+
 def removeFromDockApps(a):
 	conf = get()
 	dlist = conf["dock-apps"]
 	dlist = [x for x in dlist if x != a]
 	conf["dock-apps"]=dlist
-	lastDict = check_dict(conf)
+	lastDict = validate_configuration(conf)
+        save_configuration(lastDict)
 	

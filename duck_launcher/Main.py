@@ -23,7 +23,7 @@ import pickle
 import platform 
 import dbus
 import dbus.service
-import dbus.mainloop.glib
+from dbus.mainloop.qt import DBusQtMainLoop
 import subprocess
 import webbrowser
 import gc
@@ -53,6 +53,8 @@ class Settings(QtCore.QThread):
 	def run(self):	
 		subprocess.call(["python","/usr/lib/duck_settings/main.py"])
 ##########
+
+
 class Launcher(QtGui.QMainWindow):
 	def __init__(self):
 		QtGui.QMainWindow.__init__(self,None,QtCore.Qt.WindowStaysOnTopHint|QtCore.Qt.FramelessWindowHint)
@@ -534,7 +536,8 @@ class Launcher(QtGui.QMainWindow):
 				self.close_it()
 				if y_m>self.s_height-13:
 					print("[Duck Launcher] Saving configuration.")
-					c = Config.check_dict(self.conf)
+                                        self.conf = Config.validate_configuration(self.conf)
+                                        Config.save_configuration(self.conf)
 					QtGui.QApplication.processEvents()
 					print("[Duck Launcher] Quitting, Good Bye!")
 					QtGui.qApp.quit()
@@ -753,8 +756,7 @@ class Launcher(QtGui.QMainWindow):
 			#QtGui.QApplication.processEvents()
 		self.pl_rect_pos=0
 		self.update()
-	def update_all(self,conf):
-		self.conf=conf
+	def update_all(self):
 		if self.HALF_OPEN_POS!=int(conf["size"]):
 			self.HALF_OPEN_POS=int(conf['size'])
 			self.current_state="half_open"
@@ -905,114 +907,103 @@ class Fakewin(QtGui.QMainWindow):
 		print "quit"
 
 class DBusWidget(dbus.service.Object):
-	def __init__(self,parent, name, session):
-		# export this object to dbus
-		self.parent=parent
-		self.conf=Config.get()
+	def __init__(self, parent, name, session):
 		dbus.service.Object.__init__(self, name, session)
+		self.parent = parent
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getR1(self):
-		return int(self.conf["r"])
+		return int(self.parent.conf["r"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getG1(self):
-		return int(self.conf["g"])
+		return int(self.parent.conf["g"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getB1(self):
-		return int(self.conf["b"])
+		return int(self.parent.conf["b"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getR2(self):
-		return int(self.conf["r2"])
+		return int(self.parent.conf["r2"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getG2(self):
-		return int(self.conf["g2"])
+		return int(self.parent.conf["g2"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getB2(self):
-		return int(self.conf["b2"])
+		return int(self.parent.conf["b2"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getAlpha(self):
-		return int(self.conf["alpha"])
+		return int(self.parent.conf["alpha"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getIconSize(self):
-		return int(self.conf["icon-size"])
+		return int(self.parent.conf["icon-size"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getLauncherWidth(self):
-		return int(self.conf["size"])
+		return int(self.parent.conf["size"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getAnimationSpeed(self):
-		return float(self.conf["animation-speed"])
+		return float(self.parent.conf["animation-speed"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='s')
 	def getFont(self):
-		return self.conf["font"]
+		return self.parent.conf["font"]
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getFontR(self):
-		return int(self.conf["font-r"])
+		return int(self.parent.conf["font-r"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getFontG(self):
-		return int(self.conf["font-g"])
+		return int(self.parent.conf["font-g"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='i')
 	def getFontB(self):
-		return int(self.conf["font-b"])
+		return int(self.parent.conf["font-b"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='v')
 	def getDockApps(self):
 		print "h"
-		return list(self.conf["dock-apps"])
+		return list(self.parent.conf["dock-apps"])
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='v')
 	def getBlocks(self):
-		return self.conf["blocks"]
+		return self.parent.conf["blocks"]
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='s')
 	def getInit(self):
-		return self.conf["init-manager"]
+		return self.parent.conf["init-manager"]
 	####SET
 	@dbus.service.method("org.duck.Launcher", in_signature='',out_signature="")
 	def setR1(self,v):
-		self.conf["r"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["r"]=v
 		if self.parent.plugin==False:
 			self.parent.fg_color=(int(self.parent.conf["r"]),int(self.parent.conf["g"]),int(self.parent.conf["b"]))
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setG1(self,v):
-		self.conf["g"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["g"]=v
 		if self.parent.plugin==False:
 			self.parent.fg_color=(int(self.parent.conf["r"]),int(self.parent.conf["g"]),int(self.parent.conf["b"]))
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setB1(self,v):
-		self.conf["b"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["b"]=v
 		if self.parent.plugin==False:
 			self.parent.fg_color=(int(self.parent.conf["r"]),int(self.parent.conf["g"]),int(self.parent.conf["b"]))
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setR2(self,v):
-		self.conf["r2"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["r2"]=v
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setG2(self,v):
-		self.conf["g2"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["g2"]=v
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setB2(self,v):
-		self.conf["b2"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["b2"]=v
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setAlpha(self,v):
-		self.conf["alpha"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["alpha"]=v
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setIconSize(self,v):
-		self.conf["icon-size"]=int(v)
-		self.parent.conf=self.conf
-		self.parent.update_all(self.conf)
+		self.parent.conf["icon-size"]=int(v)
+		self.parent.update_all(self.parent.conf)
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setLauncherWidth(self,v):
-		self.conf["size"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["size"]=v
 		self.parent.HALF_OPEN_POS=int(v)
 		self.parent.webview.hide()
 		self.parent.current_state="half_open"
@@ -1023,55 +1014,50 @@ class DBusWidget(dbus.service.Object):
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setAnimationSpeed(self,v):
-		self.conf["animation-speed"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["animation-speed"]=v
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setFont(self,v):
-		self.conf["font"]=v
-		self.parent.conf=self.conf
-		self.parent.update_all(self.conf)
+		self.parent.conf["font"]=v
+		self.parent.update_all(self.parent.conf)
 	@dbus.service.method("org.duck.Launcher", in_signature='',out_signature="")
 	def setFontR(self,v):
-		self.conf["font-r"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["font-r"]=v
 		if self.parent.plugin==False:
 			self.parent.font_color=(int(self.parent.conf["font-r"]),int(self.parent.conf["font-g"]),int(self.parent.conf["font-b"]))
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setFontG(self,v):
-		self.conf["font-g"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["font-g"]=v
 		if self.parent.plugin==False:
 			self.parent.font_color=(int(self.parent.conf["font-r"]),int(self.parent.conf["font-g"]),int(self.parent.conf["font-b"]))
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setFontB(self,v):
-		self.conf["font-b"]=v
-		self.parent.conf=self.conf
+		self.parent.conf["font-b"]=v
 		if self.parent.plugin==False:
 			self.parent.font_color=(int(self.parent.conf["font-r"]),int(self.parent.conf["font-g"]),int(self.parent.conf["font-b"]))
 		self.parent.update()
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setDockApps(self,v):
-		self.conf["dock-apps"]=v
-		self.parent.conf=self.conf
-		self.parent.dock_apps=Apps.find_info(self.conf['dock-apps'])
-		self.parent.update_all(self.conf)
+		self.parent.conf["dock-apps"]=v
+		self.parent.dock_apps=Apps.find_info(self.parent.conf['dock-apps'])
+		self.parent.update_all(self.parent.conf)
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setBlocks(self,v):
-		self.conf["blocks"]=v
-		self.parent.conf=self.conf
-		self.parent.update_all(self.conf)
+		self.parent.conf["blocks"]=v
+		self.parent.update_all(self.parent.conf)
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def setInit(self,v):
-		self.conf["init-manager"]=v
-		self.parent.conf=self.conf
-		self.parent.update_all(self.conf)
+		self.parent.conf["init-manager"]=v
+		self.parent.update_all(self.parent.conf)
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def update(self):
-		self.parent.conf=self.conf
-		self.parent.update_all(self.conf)
+		self.parent.update_all(self.parent.conf)
+	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
+	def saveConfiguration(self):
+		self.parent.conf = Config.validate_configuration(self.parent.conf)
+                Config.save_configuration(self.parent.conf)
 	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
 	def exit(self):
 		QtGui.qApp().quit()
@@ -1087,14 +1073,31 @@ class DBusWidget(dbus.service.Object):
 	def lastWindowClosed(self):
 		pass
 	'''
+
+
 class MyApp(QtGui.QApplication):
-	def __init__(self,args):
+	def __init__(self, args):
 		QtGui.QApplication.__init__(self, args)
+		
+                #app.setAutoSipEnabled(True)
+		QtGui.QApplication.setApplicationName("Duck Launcher")
+		self.win = Launcher()
+
+                # create the dbus listenner
+		self.loop = DBusQtMainLoop(set_as_default=True)
+		session_bus = dbus.SessionBus(mainloop=self.loop,private=False)
+		name = dbus.service.BusName("org.duck.Launcher", session_bus)
+		widget = DBusWidget(self.win, name, '/DBusWidget')
+
+		self.win.show()
+		#self.setActiveWindow(win)
+
 	def x11EventFilter(self,e):
 		#print e
 		#e.accept()
 		QtCore.QEvent(int(e)).accept()
 		return False
+
 if __name__ == "__main__":
 	do=True
 
@@ -1111,22 +1114,9 @@ if __name__ == "__main__":
 			do=False 
 
 	if do==True:
-
 		gc.disable()
-		app =MyApp(sys.argv)
-		#app.setAutoSipEnabled(True)
 		QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
-		QtGui.QApplication.setApplicationName("Duck Launcher")
-		win = Launcher()
-		win.show()
-		#win.raise_()
-	
-		dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-		session_bus = dbus.SessionBus(private=True)
-		name = dbus.service.BusName("org.duck.Launcher", session_bus)
-		widget = DBusWidget(win,session_bus, '/DBusWidget')
-
-		app.setActiveWindow(win)
+                app = MyApp(sys.argv)
 		sys.exit(app.exec_())
 	elif do==False:
 		print("Quiting Duck Launcher")
