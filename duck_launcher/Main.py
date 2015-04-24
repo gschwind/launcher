@@ -79,8 +79,8 @@ class Launcher(QtGui.QMainWindow):
 		self.setGeometry(0,self.top_pos,self.HALF_OPEN_POS+9,self.s_height)
 		#Values
 		self.ICON_SIZE=int(conf['icon-size'])
-		self.apps_per_row = math.trunc(((self.s_width/3)-50)/ int(self.conf["icon-size"]))
-		self.apps_per_col = math.trunc(((self.s_height)-90)/ int(self.conf["icon-size"]))
+		self.apps_per_row = math.floor(((self.s_width/3)-50)/ int(self.conf["icon-size"]))
+		self.apps_per_col = math.floor(((self.s_height)-90)/ int(self.conf["icon-size"]))
 		self.apps_per_page=self.apps_per_col*self.apps_per_row
 		self.app_page_state=0
 		self.appRect=None		
@@ -251,7 +251,7 @@ class Launcher(QtGui.QMainWindow):
 								font.setWeight(QtGui.QFont.Normal)
 								font.setHintingPreference(QtGui.QFont.PreferDefaultHinting)
 								qp.setFont(font)
-								qp.drawText(text_rect,QtCore.Qt.TextWordWrap |QtCore.Qt.AlignHCenter,self.tr(app["name"]).replace(u"Â", ""))
+								qp.drawText(text_rect,QtCore.Qt.TextWordWrap|QtCore.Qt.AlignHCenter,self.tr(app["name"]))
 				elif self.plugin==True:
 					qp.setPen(QtCore.Qt.NoPen)
 					qp.setBrush(QtGui.QColor(self.fg_color[0],self.fg_color[1],self.fg_color[2]))
@@ -766,8 +766,8 @@ class Launcher(QtGui.QMainWindow):
 			self.OPEN_STATE_TOP=self.ICO_TOP*4+5
 		elif self.ICON_SIZE!=int(conf['icon-size']):
 			self.ICON_SIZE=int(conf['icon-size'])
-			self.apps_per_row = math.trunc(((self.s_width/3)-30)/self.ICON_SIZE)
-			self.apps_per_col = math.trunc(((self.s_height)-30)/self.ICON_SIZE)
+			self.apps_per_row = math.floor(((self.s_width/3)-30)/self.ICON_SIZE)
+			self.apps_per_col = math.floor(((self.s_height)-30)/self.ICON_SIZE)
 			self.apps_per_page=self.apps_per_col*self.apps_per_row
 		
 		if self.conf["blocks"]==None:
@@ -880,8 +880,8 @@ class Fakewin(QtGui.QMainWindow):
 				self.parent.current_text=""		
 				self.parent.allApps=Apps.info('')
 				self.parent.app_page_state=0
-			if self.parent.plugin==True:
-				self.parent.close_it()
+			#if self.parent.plugin==True:
+			self.parent.close_it()
 			self.parent.update()
 			#QtGui.QApplication.processEvents()
 		elif e.text()!='':
