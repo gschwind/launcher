@@ -243,8 +243,8 @@ class Launcher(QtGui.QMainWindow):
 									i.paint(qp,x_pos+20,y_pos+20,self.ICON_SIZE-40,self.ICON_SIZE-40)
 								qp.setPen(QtGui.QColor(self.font_color[0],self.font_color[1],self.font_color[2]))
 								text_rect = QtCore.QRectF(x_pos+5,y_pos+self.ICON_SIZE-10,self.ICON_SIZE-10,60)
-								#font
-								font = QtGui.QFont(self.conf["font"],9)
+								# Draw application name
+								font = QtGui.QFont(self.conf["font"],20)
 								font.setLetterSpacing(QtGui.QFont.PercentageSpacing,116)
 								font.setWeight(QtGui.QFont.Normal)
 								font.setHintingPreference(QtGui.QFont.PreferDefaultHinting)
@@ -835,17 +835,18 @@ class Fakewin(QtGui.QMainWindow):
 		##
 	def keyPressEvent(self, e):
 		QtCore.QCoreApplication.sendEvent(self.parent, e)
+                print(e.key())
 		if e.key()==QtCore.Qt.Key_Backspace:
 			self.parent.current_text=self.parent.current_text[:-1]
-			if self.plugin==False:
+			if self.parent.plugin==False:
                                 print(type(self.parent.current_text),self.parent.current_text)
 				self.parent.allApps=Apps.info(str(self.parent.current_text))
 			self.parent.update()
 		elif e.key()==QtCore.Qt.Key_Return:
 			if len(self.parent.allApps)==1:
 				a=self.parent.allApps[0]
-				print("[Duck Launcher] Launching '{0}' with '{1}'".format(a["name"], a["exec"]) )
-				thread = Launch(parent=self.parent)
+				print(u"[Duck Launcher] Launching '{0}' with '{1}'".format(a["name"], a["exec"]) )
+				thread = Widgets.Launch(parent=self.parent)
 				thread.app=a["exec"]
 				thread.start()
 				self.parent.close_it()
@@ -871,7 +872,7 @@ class Fakewin(QtGui.QMainWindow):
 				self.parent.webview.page().mainFrame().setFocus()
 				self.parent.webview.setFocus()
 				self.parent.webview.update()
-		elif e.key()==16777216:
+		elif e.key()==QtCore.Qt.Key_Escape or e.key()==16777216:
 			#ESC
 			if self.parent.plugin==False:
 				self.parent.current_text=""		
