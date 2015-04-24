@@ -626,7 +626,7 @@ class Window(App):
 		# Get the session bus
 		bus = dbus.SessionBus()
 		# Get the remote object
-		remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")
+		remote_object = bus.get_object("org.duck.Launcher","/configure")
 		# Get the remote interface for the remote object
 		iface = dbus.Interface(remote_object, "org.duck.Launcher")
 		Dict={

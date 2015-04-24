@@ -246,7 +246,7 @@ class Launcher(QtGui.QMainWindow):
 								qp.setPen(QtGui.QColor(self.font_color[0],self.font_color[1],self.font_color[2]))
 								text_rect = QtCore.QRectF(x_pos+5,y_pos+self.ICON_SIZE-10,self.ICON_SIZE-10,60)
 								# Draw application name
-								font = QtGui.QFont(self.conf["font"],20)
+								font = QtGui.QFont(self.conf["font"], int(self.ICON_SIZE/255.0 * 15.0)+8)
 								font.setLetterSpacing(QtGui.QFont.PercentageSpacing,116)
 								font.setWeight(QtGui.QFont.Normal)
 								font.setHintingPreference(QtGui.QFont.PreferDefaultHinting)
@@ -756,7 +756,7 @@ class Launcher(QtGui.QMainWindow):
 			#QtGui.QApplication.processEvents()
 		self.pl_rect_pos=0
 		self.update()
-	def update_all(self):
+	def update_all(self, conf):
 		if self.HALF_OPEN_POS!=int(conf["size"]):
 			self.HALF_OPEN_POS=int(conf['size'])
 			self.current_state="half_open"
@@ -997,7 +997,7 @@ class DBusWidget(dbus.service.Object):
 	def setAlpha(self,v):
 		self.parent.conf["alpha"]=v
 		self.parent.update()
-	@dbus.service.method("org.duck.Launcher", in_signature='', out_signature='')
+	@dbus.service.method("org.duck.Launcher", in_signature='i', out_signature='')
 	def setIconSize(self,v):
 		self.parent.conf["icon-size"]=int(v)
 		self.parent.update_all(self.parent.conf)
@@ -1087,7 +1087,7 @@ class MyApp(QtGui.QApplication):
 		self.loop = DBusQtMainLoop(set_as_default=True)
 		session_bus = dbus.SessionBus(mainloop=self.loop,private=False)
 		name = dbus.service.BusName("org.duck.Launcher", session_bus)
-		widget = DBusWidget(self.win, name, '/DBusWidget')
+		widget = DBusWidget(self.win, name, '/configure')
 
 		self.win.show()
 		#self.setActiveWindow(win)

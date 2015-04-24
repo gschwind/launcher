@@ -193,7 +193,7 @@ class Container(QWidget):
 		
 		try:
 			# Get the remote object
-			remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")		
+			remote_object = bus.get_object("org.duck.Launcher","/configure")		
 			# Get the remote interface for the remote object
 			iface = dbus.Interface(remote_object, "org.duck.Launcher")
 			if thing=="red1":
@@ -248,7 +248,7 @@ def getConfig():
 	 
 	try:
 		# Get the remote object
-		remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")		
+		remote_object = bus.get_object("org.duck.Launcher","/configure")		
 		# Get the remote interface for the remote object
 		iface = dbus.Interface(remote_object, "org.duck.Launcher")
 		config["r1"]=int(iface.getR1())
@@ -264,7 +264,7 @@ def getConfig():
 		config["speed"]=int(iface.getAnimationSpeed())
 		config["dock-apps"]=[str(d) for d in iface.getDockApps()]
 		config["blocks"]=pickle.loads(str(iface.getBlocks()))
-	except Exceptione:
+	except Exception, e:
 		print e
 	return config
 def moveUpList(app_name, dock_apps):
@@ -300,7 +300,7 @@ if __name__=="__main__":
 	app = QApplication(sys.argv)
 	w = Container()
 	cfg = getConfig()
-	print cfg["blocks"]
+	#print cfg["blocks"]
 	apps = Apps.info('')
 	fonts= [ str(a) for a in QFontDatabase().families()]
 	f=open("/usr/lib/duck_settings/template.html","r")

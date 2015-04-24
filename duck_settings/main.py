@@ -48,7 +48,7 @@ from kivy.config import Config
 
 from traceback import print_exc
 import dbus
-import dbus.mainloop.glib
+#import dbus.mainloop.glib
 try: 
 	import cPickle as pickle
 except:
@@ -66,12 +66,12 @@ except ImportError:
 ##############
 def updateConfig(*args):
 	# Enable glib main loop support
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+	#dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 	# Get the session bus
 	bus = dbus.SessionBus()
 	try:
 		# Get the remote object
-		remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")
+		remote_object = bus.get_object("org.duck.Launcher","/configure")
 		# Get the remote interface for the remote object
 		iface = dbus.Interface(remote_object, "org.duck.Launcher")
 	except dbus.DBusException:
@@ -96,6 +96,7 @@ def updateConfig(*args):
 		elif arg.has_key("size"):
 			iface.setLauncherWidth(arg["size"])
 		elif arg.has_key("icon-size"):
+			print(arg["icon-size"])
 			iface.setIconSize(arg["icon-size"])
 		elif arg.has_key("font"):
 			iface.setFont(arg["font"])
@@ -605,19 +606,19 @@ class Window(App):
 		updateConfig({"font":font})
 	def on_stop(self):
 		print "[Duck Settings] Quiting and saving configuration"
-                if True:
+                try:
 		    #update config file
-		    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+		    #dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 		    # Get the session bus
 		    bus = dbus.SessionBus()
 		    # Get the remote object
-		    remote_object = bus.get_object("org.duck.Launcher","/DBusWidget")
+		    remote_object = bus.get_object("org.duck.Launcher","/configure")
 		    # Get the remote interface for the remote object
 		    iface = dbus.Interface(remote_object, "org.duck.Launcher")
                     # saving configuration
                     iface.saveConfiguration()
-                #except:
-                #    print(u"[Duck Settings] Fail to get the laucher dbus interface")
+                except:
+                    print(u"[Duck Settings] Fail to save configuration")
 if __name__=="__main__":
 	Config.set('graphics','width','725')
 	Config.set('graphics','height','600')
